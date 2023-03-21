@@ -2,12 +2,13 @@ defmodule HelloWeb.Router do
   use HelloWeb, :router
 
   pipeline :browser do
-    plug :accepts, ["html"]
+    plug :accepts, ["html", "json"]
     plug :fetch_session
     plug :fetch_live_flash
     plug :put_root_layout, {HelloWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug HelloWeb.Plugs.Locale, "en"
   end
 
   pipeline :api do
@@ -18,11 +19,35 @@ defmodule HelloWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    get "/hello", HelloController, :index
+    get "/hello/:messenger", HelloController, :show
+    get "/text/:messenger", HelloController, :show_text
+    get "/json/:messenger", HelloController, :show_json
+    get "/multi/:messenger", HelloController, :show_multi
+    get "/many-values/:messenger", HelloController, :show_many_values
+    get "/redirect-test", HelloController, :redirect_test
+    get "/external-redirect", HelloController, :external_redirect
+    get "/flash", HelloController, :flash
+    # resources "/users", UserController do
+    #   resources "/posts", PostController
+    # end
+    # resources "/comments", CommentController, except: [:delete]
+    # resources "/reviews", ReviewController
   end
+
+  # scope "/admin", HelloWeb.Admin do
+  #   pipe_through :browser
+
+  #   resources "/reviews", ReviewController
+  # end
 
   # Other scopes may use custom stacks.
   # scope "/api", HelloWeb do
   #   pipe_through :api
+
+  #   scope "/v1", V1 do
+  #     resources "/users", UserController
+  #   end
   # end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
