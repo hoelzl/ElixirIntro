@@ -55,15 +55,20 @@ defmodule Othellix.Game do
   defp adjacent_empty_positions(board, {x, y}) do
     result =
       all_neighbors({x, y})
-      |> Enum.filter(&is_valid_empty_location(&1, board))
+      |> Enum.filter(&valid_empty_location?(&1, board))
+
     if result != adjacent_empty_positions_old(board, x, y) do
-      IO.puts("adjacent_empty_positions: #{inspect result}")
-      IO.puts("adjacent_empty_positions_old: #{inspect adjacent_empty_positions_old(board, x, y)}")
+      IO.puts("adjacent_empty_positions: #{inspect(result)}")
+
+      IO.puts(
+        "adjacent_empty_positions_old: #{inspect(adjacent_empty_positions_old(board, x, y))}"
+      )
     end
+
     result
   end
 
-  defp is_valid_empty_location({x, y}, board) do
+  defp valid_empty_location?({x, y}, board) do
     in_bounds?(x, y) and empty_location?(board, {x, y})
   end
 
@@ -120,26 +125,19 @@ defmodule Othellix.Game do
   def make_move(board, {x, y}, color) do
     opponent_color = if color == :black, do: :white, else: :black
 
-    directions_to_flip =
-      for(
-        dx <- -1..1,
-        dy <- -1..1,
-        dx != 0 or dy != 0,
-        do: {dx, dy}
-      )
-      |> Enum.filter(fn {dx, dy} ->
-        {nx, ny} = {x + dx, y + dy}
+    new_board =
+      for dx <- -1..1, dy <- -1..1, dx != 0 or dy != 0, reduce: board do
+        acc_board ->
+          {nx, ny} = {x + dx, y + dy}
 
-        if in_bounds?(nx, ny) and Map.get(board, {nx, ny}) == opponent_color do
-          count_pieces_in_direction(board, nx, ny, dx, dy, color, 0) > 0
-        else
-          false
-        end
-      end)
+          if in_bounds?(nx, ny) and Map.get(board, {nx, ny}) == opponent_color do
+            flip_pieces_in_direction(acc_board, x, y, dx, dy, color)
+          else
+            acc_board
+          end
+      end
 
-    Enum.reduce(directions_to_flip, set_piece(board, {x, y}, color), fn {dx, dy}, updated_board ->
-      flip_pieces_in_direction(updated_board, x + dx, y + dy, dx, dy, color)
-    end)
+    Map.put(new_board, {x, y}, color)
   end
 
   defp flip_pieces_in_direction(board, x, y, dx, dy, color) do
@@ -148,7 +146,11 @@ defmodule Othellix.Game do
         board
 
       _ ->
-        flip_pieces_in_direction(set_piece(board, {x, y}, color), x + dx, y + dy, dx, dy, color)
+        if in_bounds?(x, y) do
+          flip_pieces_in_direction(set_piece(board, {x, y}, color), x + dx, y + dy, dx, dy, color)
+        else
+          board
+        end
     end
   end
 
