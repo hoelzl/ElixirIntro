@@ -28,22 +28,27 @@ defmodule Stack do
 
   # GenServer callbacks
 
+  @impl true
   def init(_) do
     {:ok, []}
   end
 
+  @impl true
   def handle_call(:size, _from, state) do
     {:reply, length(state), state}
   end
 
+  @impl true
   def handle_call({:push, item}, _from, state) do
     {:reply, :ok, [item | state]}
   end
 
+  @impl true
   def handle_call(:pop, _from, [item | rest]) do
     {:reply, {:ok, item}, rest}
   end
 
+  @impl true
   def handle_call(:pop, _from, []) do
     {:reply, :empty, []}
   end

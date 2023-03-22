@@ -3,39 +3,45 @@ defmodule PC.Producer do
 
   # Public API
 
-  def start_link do
-    GenServer.start_link(__MODULE__, :ok)
+  def start_link(options \\ []) do
+    GenServer.start_link(__MODULE__, {0, []}, options)
   end
 
+  @spec stop(pid) :: :ok
   def stop(pid) do
     GenServer.stop(pid)
   end
 
+  @spec produce_item(pid) :: :ok
   def produce_item(pid) do
     GenServer.call(pid, :produce_item)
   end
 
+  @spec get_item(pid) :: {:ok, any, pid} | :no_item
   def get_item(pid) do
     GenServer.call(pid, :get_item)
   end
 
   # GenServer callbacks
 
-  def init(:ok) do
-    {:ok, []}
+  @impl true
+  def init(state) do
+    {:ok, state}
   end
 
-  def handle_call(:produce_item, {pid, _}, state) do
-    IO.puts("Producing item for #{inspect(pid)}.")
-    item = :rand.uniform(100)
-    {:reply, :ok, [{item, pid} | state]}
+  @impl true
+  def handle_call(:produce_item, {pid, _}, {next, items}) do
+    # IO.puts("Producing item #{next} for #{inspect(pid)}.")
+    {:reply, :ok, {next + 1, [{next, pid} | items]}}
   end
 
-  def handle_call(:get_item, _from, [{item, pid} | rest]) do
-    {:reply, {:ok, item, pid}, rest}
+  @impl true
+  def handle_call(:get_item, _from, {next, [{item, pid} | rest]}) do
+    {:reply, {:ok, item, pid}, {next, rest}}
   end
 
-  def handle_call(:get_item, _from, []) do
-    {:reply, :no_item, []}
+  @impl true
+  def handle_call(:get_item, _from, {next, []}) do
+    {:reply, :no_item, {next, []}}
   end
 end

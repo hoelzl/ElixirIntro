@@ -9,14 +9,14 @@ defmodule KV.Bucket do
   end
 
   @doc """
-  Gets a value from the bucket by key.
+  Gets a value for `key` from the bucket.
   """
   def get(bucket, key) do
     Agent.get(bucket, &Map.get(&1, key))
   end
 
   @doc """
-  Put the value for the given key into the bucket.
+  Puts the value for the given key into the bucket.
   """
   def put(bucket, key, value) do
     Agent.update(bucket, &Map.put(&1, key, value))
