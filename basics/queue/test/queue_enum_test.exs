@@ -16,12 +16,12 @@ defmodule QueueEnumTest do
 
   test "all? works for queues", %{queue: queue} do
     assert Enum.all?(queue, &(&1 > 0))
-    assert !Enum.all?(queue, &(&1 > 1))
+    refute Enum.all?(queue, &(&1 > 1))
   end
 
   test "any? works for queues", %{queue: queue} do
     assert Enum.any?(queue, &(&1 == 2))
-    assert !Enum.any?(queue, &(&1 > 5))
+    refute Enum.any?(queue, &(&1 > 5))
   end
 
   test "at works for queues", %{queue: queue} do
