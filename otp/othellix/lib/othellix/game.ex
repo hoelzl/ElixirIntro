@@ -8,10 +8,10 @@ defmodule Othellix.Game do
           players: [Player.t()]
         }
 
-  def new_game do
+  def new_game(black_player \\ HumanPlayer, white_player \\ AIPlayer) do
     %Othellix.Game{
       board: new_board(),
-      players: [HumanPlayer.new(:black), AIPlayer.new(:white)]
+      players: [black_player.new(:black), white_player.new(:white)]
     }
   end
 
@@ -33,17 +33,17 @@ defmodule Othellix.Game do
     opponent_color = if color == :black, do: :white, else: :black
 
     board
-    |> Enum.filter(fn {{_x, _y}, p} -> p == opponent_color end)
-    |> Enum.flat_map(fn {{x, y}, _} -> adjacent_empty_positions(board, x, y) end)
+    |> Enum.filter(fn {_pos, p} -> p == opponent_color end)
+    |> Enum.flat_map(fn {pos, _} -> adjacent_empty_positions(board, pos) end)
     |> Enum.uniq()
-    |> Enum.filter(fn {x, y} -> is_valid_move?(board, x, y, color) end)
+    |> Enum.filter(fn pos -> is_valid_move?(board, pos, color) end)
   end
 
-  defp adjacent_empty_positions(board, x, y) do
-    for {dx, dy} <- all_directions do
+  defp adjacent_empty_positions_old(board, x, y) do
+    for {dx, dy} <- all_directions() do
       {nx, ny} = {x + dx, y + dy}
 
-      if in_bounds?(nx, ny) and empty_location?(board, nx, ny) do
+      if in_bounds?(nx, ny) and empty_location?(board, {nx, ny}) do
         {nx, ny}
       else
         nil
@@ -52,25 +52,44 @@ defmodule Othellix.Game do
     |> Enum.reject(&is_nil/1)
   end
 
+  defp adjacent_empty_positions(board, {x, y}) do
+    result =
+      all_neighbors({x, y})
+      |> Enum.filter(&is_valid_empty_location(&1, board))
+    if result != adjacent_empty_positions_old(board, x, y) do
+      IO.puts("adjacent_empty_positions: #{inspect result}")
+      IO.puts("adjacent_empty_positions_old: #{inspect adjacent_empty_positions_old(board, x, y)}")
+    end
+    result
+  end
+
+  defp is_valid_empty_location({x, y}, board) do
+    in_bounds?(x, y) and empty_location?(board, {x, y})
+  end
+
+  defp all_neighbors({x, y}) do
+    for {dx, dy} <- all_directions() do
+      {x + dx, y + dy}
+    end
+  end
+
   defp all_directions do
     for dx <- -1..1, dy <- -1..1, dx != 0 or dy != 0 do
       {dx, dy}
     end
   end
 
-  defp empty_location?(board, x, y) do
+  defp empty_location?(board, {x, y}) do
     Map.get(board, {x, y}) == :empty
   end
 
   defp in_bounds?(x, y), do: x >= 0 and x <= 7 and y >= 0 and y <= 7
 
-  defp is_valid_move?(board, x, y, color) do
+  defp is_valid_move?(board, {x, y}, color) do
     opponent_color = if color == :black, do: :white, else: :black
 
     Enum.any?(
-      for dx <- -1..1, dy <- -1..1, dx != 0 or dy != 0 do
-        {dx, dy}
-      end,
+      all_directions(),
       fn {dx, dy} ->
         {nx, ny} = {x + dx, y + dy}
 
