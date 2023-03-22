@@ -2,7 +2,9 @@ defmodule Kv.BucketTest do
   use ExUnit.Case, async: true
 
   setup do
-    {:ok, bucket} = KV.Bucket.start_link([])
+    # Don't start servers like this!
+    # {:ok, bucket} = KV.Bucket.start_link([])
+    bucket = start_supervised!(KV.Bucket, [])
     %{bucket: bucket}
   end
 
