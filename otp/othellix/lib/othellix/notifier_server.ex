@@ -8,7 +8,7 @@ defmodule Othellix.Notifier.Server do
     GenServer.start_link(__MODULE__, :ok, opts)
   end
 
-  def register_observer(_notifier, observer) do
+  def register_observer(observer) do
     GenServer.cast(__MODULE__, {:register_observer, observer})
   end
 
@@ -41,7 +41,7 @@ defmodule Othellix.Notifier.Server do
     Logger.debug("Notifier.Server: {:notify #{message}}")
 
     for observer <- observers do
-      Logger.debug("Notifier.Server: sending #{message} to #{inspect(observer)}")
+      Logger.debug("Notifier.Server: calling notify(\"#{message}\") on #{inspect(observer)}")
       Notifier.notify(observer, message)
     end
 
@@ -52,7 +52,7 @@ defmodule Othellix.Notifier.Server do
     Logger.debug("Notifier.Server: {:note_new_game #{game}}")
 
     for observer <- observers do
-      Logger.debug("Notifier.Server: sending #{game} to #{inspect(observer)}")
+      Logger.debug("Notifier.Server: calling note_new_game() on #{inspect(observer)}")
       Notifier.note_new_game(observer, game)
     end
 
@@ -60,11 +60,11 @@ defmodule Othellix.Notifier.Server do
   end
 
   def handle_cast({:note_move, old_game, color, move, new_board}, observers) do
-    Logger.debug("Notifier.Server: {:note_move #{old_game}, #{color}, #{move}, #{new_board}}")
+    Logger.debug("Notifier.Server: {:note_move ...}")
 
     for observer <- observers do
       Logger.debug(
-        "Notifier.Server: sending #{old_game}, #{color}, #{move}, #{new_board} to #{inspect(observer)}"
+        "Notifier.Server: calling note_move() on #{inspect(observer)}"
       )
 
       Notifier.note_move(observer, old_game, color, move, new_board)
@@ -74,11 +74,11 @@ defmodule Othellix.Notifier.Server do
   end
 
   def handle_cast({:note_result, game, current_color, score}, observers) do
-    Logger.debug("Notifier.Server: {:note_result #{game}, #{current_color}, #{score}}")
+    Logger.debug("Notifier.Server: {:note_result ...}")
 
     for observer <- observers do
       Logger.debug(
-        "Notifier.Server: sending #{game}, #{current_color}, #{score} to #{inspect(observer)}"
+        "Notifier.Server: calling note_result() on #{inspect(observer)}"
       )
 
       Notifier.note_result(observer, game, current_color, score)
