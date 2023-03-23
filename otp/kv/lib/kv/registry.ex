@@ -56,8 +56,8 @@ defmodule KV.Registry do
     if Map.has_key?(names, name) do
       {:reply, {:ok, names[name]}, state}
     else
-      {bucket, state} = create_new_bucket(name, state)
-      {:reply, {:ok, bucket}, state}
+      {sup, state} = create_new_bucket(name, state)
+      {:reply, {:ok, sup}, state}
     end
   end
 
@@ -90,10 +90,10 @@ defmodule KV.Registry do
     # We are both linking to and monitoring the bucket process. This is a very
     # bad idea! We are doing it here for pedagogical purposes. Don't do this for
     # real!
-    {:ok, bucket} = KV.Bucket.start_link([])
-    ref = Process.monitor(bucket)
+    {:ok, pid} = DynamicSupervisor.start_child(KV.BucketSupervisor, KV.Bucket)
+    ref = Process.monitor(pid)
     refs = Map.put(refs, ref, name)
-    names = Map.put(names, name, bucket)
-    {bucket, {names, refs}}
+    names = Map.put(names, name, pid)
+    {pid, {names, refs}}
   end
 end
