@@ -25,10 +25,10 @@ defmodule Othellix.Game do
     board = for x <- 0..7, y <- 0..7, into: %{}, do: {{x, y}, :empty}
 
     board
-    |> Map.put({3, 3}, :white)
-    |> Map.put({4, 4}, :white)
-    |> Map.put({3, 4}, :black)
-    |> Map.put({4, 3}, :black)
+    |> set_piece({3, 3}, :white)
+    |> set_piece({4, 4}, :white)
+    |> set_piece({3, 4}, :black)
+    |> set_piece({4, 3}, :black)
   end
 
   def get_piece(board, {x, y}) do
@@ -123,7 +123,7 @@ defmodule Othellix.Game do
           end
       end
 
-    Map.put(new_board, {x, y}, color)
+    set_piece(new_board, {x, y}, color)
   end
 
   defp flip_pieces_in_direction(board, x, y, dx, dy, color) do
