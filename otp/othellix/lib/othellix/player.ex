@@ -1,9 +1,9 @@
 defprotocol Othellix.Player do
-  alias Othellix.{Player, Core}
+  alias Othellix.{Player, Core, Game}
 
-  @spec play_turn(Player, Core.board(), Core.color()) ::
+  @spec play_turn(Player, Game.t(), Core.color()) ::
           {:ok, Othellix.t()} | {:error, String.t()}
-  def play_turn(player, board, color)
+  def play_turn(player, game, color)
 end
 
 defmodule Othellix.HumanPlayer do
@@ -15,15 +15,20 @@ defmodule Othellix.HumanPlayer do
 end
 
 defimpl Othellix.Player, for: Othellix.HumanPlayer do
-  def play_turn(_player, _board, valid_moves) do
-    # Prompt the human player for input and make the move
-    # Note: Add error handling and input validation
-    IO.puts("Your valid moves are: #{inspect valid_moves}.")
-    IO.puts("Enter the row and column (0-7) separated by a comma:")
-    input = IO.gets("") |> String.trim() |> String.split(",", trim: true)
-    {row, col} = {String.to_integer(Enum.at(input, 0)), String.to_integer(Enum.at(input, 1))}
+  @impl true
+  def play_turn(_player, game, valid_moves) do
+    import Othellix.Notifier.Utils
 
-    {:ok, {row, col}}
+    IO.puts("Current board:")
+    print_board(game.board)
+
+    IO.puts("Your valid moves are:")
+    valid_moves |> Enum.with_index() |> Enum.each(fn {{x, y}, index} ->
+      IO.puts("#{index + 1}: #{x}, #{y}")
+    end)
+    input = IO.gets("Pick a move: ") |> String.trim() |> String.to_integer()
+
+    {:ok, Enum.at(valid_moves, input - 1)}
   end
 end
 
@@ -36,9 +41,8 @@ defmodule Othellix.AIPlayer do
 end
 
 defimpl Othellix.Player, for: Othellix.AIPlayer do
-  alias Othellix.Game
-
-  def play_turn(_player, _board, valid_moves) do
+  @impl true
+  def play_turn(_player, _game, valid_moves) do
     case valid_moves do
       [] ->
         {:error, "No valid moves"}
@@ -46,7 +50,6 @@ defimpl Othellix.Player, for: Othellix.AIPlayer do
       moves ->
         # Pick a random move
         move = Enum.random(moves)
-        IO.puts("AI player chose move: #{inspect move}")
         {:ok, move}
     end
   end
