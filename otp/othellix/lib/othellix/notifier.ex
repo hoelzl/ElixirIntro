@@ -72,6 +72,7 @@ defimpl Othellix.Notifier, for: Othellix.Notifier.Cli do
 
   @impl true
   def notify(_notifier, message) do
+    IO.puts("Notifier running on #{inspect self()}:")
     IO.puts(message)
   end
 
@@ -107,6 +108,7 @@ defimpl Othellix.Notifier, for: Othellix.Notifier.Verbose do
 
   @impl true
   def notify(_notifier, message) do
+    IO.puts("Notifier running on #{inspect self()}:")
     IO.puts(message)
   end
 
