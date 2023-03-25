@@ -378,13 +378,25 @@ end
 
 # Structs
 
+defmodule MyPoint.Struct1 do
+  defstruct a: 0, b: 0, c: 0
+end
+
+s = %MyPoint.Struct1{b: 10}
+s.a
+s.b
+%MyPoint.Struct1{s | a: 20}
+
 defmodule MyPoint do
+  defmodule Struct2 do
+    defstruct a: 0, b: 0, c: 0
+  end
   defstruct x: 0, y: 0
 end
 
 %MyPoint{}
 %MyPoint{x: 1, y: 2}
-
+%MyPoint.Struct2{}
 
 defmodule MyPoint do
   defstruct x: 0, y: 0
@@ -405,6 +417,7 @@ defprotocol Describable do
 end
 
 defimpl Describable, for: Integer do
+  @impl true
   def describe(data) do
     "This is an Integer: #{inspect(data)}"
   end
@@ -455,6 +468,7 @@ Fixable.fix(1)
 Fixable.fix("Hello")
 
 # Prozesse
+
 pid = spawn(fn -> IO.puts("Hello from a process!") end)
 Process.alive?(pid)
 

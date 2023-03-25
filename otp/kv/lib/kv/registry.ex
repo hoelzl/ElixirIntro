@@ -19,6 +19,10 @@ defmodule KV.Registry do
     GenServer.call(server, {:lookup, name})
   end
 
+  def lookup(name) do
+    lookup(__MODULE__, name)
+  end
+
   @doc """
   Ensures there is a bucket associated to the given `name` in `server`.
 
@@ -34,6 +38,10 @@ defmodule KV.Registry do
   """
   def create(server, name) do
     GenServer.call(server, {:create, name})
+  end
+
+  def create(name) do
+    create(__MODULE__, name)
   end
 
   # GenServer callbacks

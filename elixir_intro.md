@@ -63,19 +63,6 @@
 - Logik
 - Bitweise
 
-## Mix
-
-- Elixirs Build-Tool
-- Ein neues Projekt erstellen: `mix new my_project`
-- Kompilieren und Ausführen von Code:
-  - `mix compile`
-  - `mix run`
-  - `iex -S mix` (interaktiv)
-- Ausführen von Tests: `mix test`
-- Verwalten von Abhängigkeiten: `mix deps.get`
-- Erstellen von Releases: `mix release`
-- Dokumentation generieren: `mix docs`
-
 ## Funktionen, Variablen und Module
 
 - Definieren von Modulen
@@ -133,3 +120,16 @@
 - Erstellen und Verwalten von Prozessen
 - Senden und Empfangen von Nachrichten
 - Prozessregistrierung
+
+## Mix
+
+- Elixirs Build-Tool
+- Ein neues Projekt erstellen: `mix new my_project`
+- Kompilieren und Ausführen von Code:
+  - `mix compile`
+  - `mix run`
+  - `iex -S mix` (interaktiv)
+- Ausführen von Tests: `mix test`
+- Verwalten von Abhängigkeiten: `mix deps.get`
+- Erstellen von Releases: `mix release`
+- Dokumentation generieren: `mix docs`
